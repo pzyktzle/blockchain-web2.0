@@ -1,0 +1,22 @@
+{
+  "name": "web2.0",
+  "version": "1.0.0",
+  "description": "Code and lectures: https://github.com/MasnadNehith/web2.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pzyktzle/blockchain-web2.0.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pzyktzle/blockchain-web2.0/issues"
+  },
+  "homepage": "https://github.com/pzyktzle/blockchain-web2.0#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
