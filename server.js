@@ -2,9 +2,11 @@ const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
 
+const save_user_information = require("./models/server_db");
+
 app.use(bodyParser.json());
 
-app.post("/", (req, res) => {
+app.post("/", async (req, res) => {
   var email = req.body.email;
   var amount = req.body.amount;
 
@@ -15,7 +17,13 @@ app.post("/", (req, res) => {
     return res.send(return_info);
   }
 
-  res.send("*** res: " + email + " " + amount);
+  var result = await save_user_information({ amount: amount, email: email });
+  res.send(result);
+});
+
+app.get("/get_total_amount", async (req, res) => {
+  var result = await get_total_amount();
+  res.send(result);
 });
 
 app.listen(3000, () => console.log("server is running on port 3000"));
