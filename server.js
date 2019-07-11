@@ -4,8 +4,18 @@ const bodyParser = require("body-parser");
 const path = require("path");
 const publicPath = path.join(__dirname, "./public");
 const paypal = require("paypal-rest-sdk");
+const session = require("express-session");
 
 const save_user_information = require("./models/server_db");
+
+app.use(
+  session({
+    secret: "my web app",
+    cookie: {
+      maxAge: 60000
+    }
+  })
+);
 
 app.use(bodyParser.json());
 app.use(express.static(publicPath));
@@ -36,6 +46,8 @@ app.post("/post_info", async (req, res) => {
     email: email
   });
 
+  req.session.paypal_amount = amount;
+
   var create_payment_json = {
     intent: "sale",
     payer: {
@@ -52,7 +64,7 @@ app.post("/post_info", async (req, res) => {
             {
               name: "Lottery",
               sku: "Funding",
-              price: amount,
+              price: req.session.paypal_amount,
               currency: "USD",
               quantity: 1
             }
@@ -60,7 +72,7 @@ app.post("/post_info", async (req, res) => {
         },
         amount: {
           currency: "USD",
-          total: amount
+          total: req.session.paypal_amount
         },
         payee: {
           email: "lottery_manager123@lotteryapp.com"
@@ -115,6 +127,63 @@ app.get("/success", (req, res) => {
 app.get("/get_total_amount", async (req, res) => {
   var result = await get_total_amount();
   res.send(result);
+});
+
+app.get("/pick_winner", async (req, res) => {
+  var result = await get_total_amount();
+  var total_amount = result[0].total_amount;
+  req.session.paypal_amount = total_amount;
+
+  // placeholder for picking the winner
+
+  // create paypal payment
+  var create_payment_json = {
+    intent: "sale",
+    payer: {
+      payment_method: "paypal"
+    },
+    redirect_urls: {
+      return_url: "http://localhost:3000/success",
+      cancel_url: "http://localhost:3000/cancel"
+    },
+    transactions: [
+      {
+        item_list: {
+          items: [
+            {
+              name: "Lottery",
+              sku: "Funding",
+              price: req.session.paypal_amount,
+              currency: "USD",
+              quantity: 1
+            }
+          ]
+        },
+        amount: {
+          currency: "USD",
+          total: req.session.paypal_amount
+        },
+        payee: {
+          email: winner_email
+        },
+        description: "Pay winner!!!"
+      }
+    ]
+  };
+
+  paypal.payment.create(create_payment_json, function(error, payment) {
+    if (error) {
+      throw error;
+    } else {
+      console.log("Create Payment Response");
+      console.log(payment);
+      for (var i = 0; i < payment.links.length; i++) {
+        if (payment.links[i].rel === "approval_url") {
+          return res.send(payment.links[i].href);
+        }
+      }
+    }
+  });
 });
 
 app.listen(3000, () => console.log("server is running on port 3000"));
