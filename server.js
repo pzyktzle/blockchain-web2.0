@@ -8,7 +8,8 @@ const session = require("express-session");
 
 const {
   save_user_information,
-  get_list_of_participants
+  get_list_of_participants,
+  delete_users
 } = require("./models/server_db");
 
 app.use(
@@ -100,7 +101,7 @@ app.post("/post_info", async (req, res) => {
   });
 });
 
-app.get("/success", (req, res) => {
+app.get("/success", async (req, res) => {
   const payerId = req.query.PayerID;
   const paymentId = req.query.paymentId;
   var execute_payment_json = {
@@ -152,8 +153,8 @@ app.get("/pick_winner", async (req, res) => {
   });
   var winner_email =
     email_array[Math.floor(Math.random() * email_array.length)];
-  
-    req.session.winner_picked = true;
+
+  req.session.winner_picked = true;
 
   // create paypal payment
   var create_payment_json = {

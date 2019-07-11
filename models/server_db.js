@@ -30,7 +30,7 @@ get_total_amount = data => {
   });
 };
 
-get_list_of_participants = async data =>
+get_list_of_participants = data =>
   new Promise((resolve, reject) => {
     db.query("select email from lottery_information", null, function(
       err,
@@ -44,7 +44,22 @@ get_list_of_participants = async data =>
     });
   });
 
+delete_users = async data =>
+  new Promise((resolve, reject) => {
+    db.query("delete from lottery_information where ID > 0", null, function(
+      err,
+      results,
+      fields
+    ) {
+      if (err) {
+        reject("could not delete participants");
+      }
+      resolve("successfully deleted all users");
+    });
+  });
+
 module.exports = {
   save_user_information,
-  get_list_of_participants
+  get_list_of_participants,
+  delete_users
 };
